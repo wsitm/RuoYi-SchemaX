@@ -47,58 +47,58 @@
   <li>
     <strong>驱动列表</strong>
     <br>
-    <img src="doc/img/驱动管理@01.png" width="60%" alt="驱动管理@01">
+    <img src="doc/img/驱动管理@01.png" width="80%" alt="驱动管理@01">
   </li>
   <li>
     <strong>添加驱动</strong>
     <br>
-    <img src="doc/img/驱动管理@02.png" width="60%" alt="驱动管理@02">
+    <img src="doc/img/驱动管理@02.png" width="80%" alt="驱动管理@02">
   </li>
 
   <li>
     <strong>连接配置列表</strong>
     <br>
-    <img src="doc/img/连接配置@01.png" width="60%" alt="连接配置@01">
+    <img src="doc/img/连接配置@01.png" width="80%" alt="连接配置@01">
   </li>
   <li>
     <strong>连接配置-导出表结构</strong>
     <br>
-    <img src="doc/img/连接配置@02.png" width="60%" alt="连接配置@02">
+    <img src="doc/img/连接配置@02.png" width="80%" alt="连接配置@02">
     <br>
-    <img src="doc/img/连接配置@03.png" width="60%" alt="连接配置@03">
+    <img src="doc/img/连接配置@03.png" width="80%" alt="连接配置@03">
     <br>
-    <img src="doc/img/连接配置@04.png" width="60%" alt="连接配置@04">
+    <img src="doc/img/连接配置@04.png" width="80%" alt="连接配置@04">
   </li>
   <li>
     <strong>连接配置-查看详情-基本列表</strong>
     <br>
-    <img src="doc/img/连接配置@05.png" width="60%" alt="连接配置@05">
+    <img src="doc/img/连接配置@05.png" width="80%" alt="连接配置@05">
   </li>
   <li>
     <strong>连接配置-查看详情-表结构信息</strong>
     <br>
-    <img src="doc/img/连接配置@06.png" width="60%" alt="连接配置@06">
+    <img src="doc/img/连接配置@06.png" width="80%" alt="连接配置@06">
   </li>
   <li>
     <strong>连接配置-查看详情-查看DDL语句</strong>
     <br>
-    <img src="doc/img/连接配置@07.png" width="60%" alt="连接配置@07">
+    <img src="doc/img/连接配置@07.png" width="80%" alt="连接配置@07">
   </li>
 
   <li>
     <strong>DDL转换DDL</strong>
     <br>
-    <img src="doc/img/DDL转换@01.png" width="60%" alt="DDL转换@01">
+    <img src="doc/img/DDL转换@01.png" width="80%" alt="DDL转换@01">
   </li>
   <li>
     <strong>DDL转换，切换数据库方言</strong>
     <br>
-    <img src="doc/img/DDL转换@02.png" width="60%" alt="DDL转换@02">
+    <img src="doc/img/DDL转换@02.png" width="80%" alt="DDL转换@02">
   </li>
   <li>
     <strong>DDL转换表结构</strong>
     <br>
-    <img src="doc/img/DDL转换@03.png" width="60%" alt="DDL转换@03">
+    <img src="doc/img/DDL转换@03.png" width="80%" alt="DDL转换@03">
   </li>
 </ul>
 
