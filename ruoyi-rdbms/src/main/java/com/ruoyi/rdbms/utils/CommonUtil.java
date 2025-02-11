@@ -6,6 +6,8 @@ import cn.hutool.core.util.StrUtil;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CommonUtil {
 
@@ -120,5 +122,39 @@ public class CommonUtil {
         return judges[n][m];
     }
 
+    /**
+     * 替换单引号包含的内容
+     *
+     * @param input       原字符串
+     * @param searchStr   被查找的字符串
+     * @param replacement 被替换的字符串
+     * @return 替换后的字符串
+     */
+    public static String replaceInQuotes(String input, String searchStr, String replacement) {
+        // 定义正则表达式，匹配单引号内的内容
+        Pattern pattern = Pattern.compile("'([^']*)'");
+        Matcher matcher = pattern.matcher(input);
+
+        // 使用 StringBuilder 来构建替换后的字符串
+        StringBuilder sb = new StringBuilder();
+        int lastEnd = 0; // 上一个匹配结束的位置
+
+        while (matcher.find()) {
+            // 添加匹配前的内容到 StringBuilder
+            sb.append(input, lastEnd, matcher.start());
+            // 获取匹配的内容，并替换其中的分号
+            String quotedContent = matcher.group(1);
+            String replacedContent = quotedContent.replace(searchStr, replacement);
+            // 添加替换后的内容到 StringBuilder
+            sb.append("'").append(replacedContent).append("'");
+            // 更新上一个匹配结束的位置
+            lastEnd = matcher.end();
+        }
+
+        // 添加最后一个匹配之后的内容（如果有）
+        sb.append(input.substring(lastEnd));
+
+        return sb.toString();
+    }
 
 }

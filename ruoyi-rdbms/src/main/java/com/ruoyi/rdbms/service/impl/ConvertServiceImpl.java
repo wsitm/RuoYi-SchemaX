@@ -145,7 +145,7 @@ public class ConvertServiceImpl implements IConvertService {
                 DDLUtil.parserDDL(convertVO) : convertVO.getTableVOList();
         if (convertVO.getOutputType().equals(2)) {
             List<TableVO> filterList = tableVOList.stream()
-                    .filter(tableVO -> StrUtil.isEmpty(tableVO.getAbnormalDDL()))
+                    .filter(tableVO -> ObjectUtil.isNull(tableVO.getExtend()))
                     .collect(Collectors.toList());
             return AjaxResult.success(filterList);
         }

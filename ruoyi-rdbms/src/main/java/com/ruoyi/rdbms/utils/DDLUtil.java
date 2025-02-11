@@ -14,13 +14,11 @@ import com.github.drinkjava2.jdialects.model.TableModel;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.rdbms.constant.DialectEnum;
 import com.ruoyi.rdbms.constant.RdbmsConstants;
-import com.ruoyi.rdbms.entity.vo.ColumnVO;
-import com.ruoyi.rdbms.entity.vo.ConvertVO;
-import com.ruoyi.rdbms.entity.vo.IndexVO;
-import com.ruoyi.rdbms.entity.vo.TableVO;
+import com.ruoyi.rdbms.entity.vo.*;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.SetStatement;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.comment.Comment;
 import net.sf.jsqlparser.statement.create.index.CreateIndex;
@@ -28,13 +26,13 @@ import net.sf.jsqlparser.statement.create.table.ColDataType;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.create.table.Index;
+import net.sf.jsqlparser.statement.drop.Drop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
 import java.sql.Types;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -55,18 +53,37 @@ public abstract class DDLUtil {
         Dialect dialect = DialectEnum.getDialectByDatabase(database).getDialect();
         for (TableVO tableVO : tableVOList) {
             try {
-                if (StrUtil.isNotEmpty(tableVO.getAbnormalDDL())) {
-                    String[] arrDDL = new String[]{
-                            "-- 无法解析",
-                            "-- " + tableVO.getAbnormalDDL()
-                    };
-                    result.put(tableVO.getTableName(), arrDDL);
+                if (tableVO.getExtend() != null) {
+                    ExtendVO extendVO = tableVO.getExtend();
+                    if (StrUtil.isNotEmpty(extendVO.getDropTable())) {
+                        TableModel tableModel = new TableModel(extendVO.getDropTable());
+                        String[] arrDDL = dialect.toDropDDL(tableModel);
+                        result.put(tableVO.getTableName(), arrDDL);
+                    }
+                    if (StrUtil.isNotEmpty(extendVO.getSourceSQL())) {
+                        String sourceSql = extendVO.getSourceSQL();
+                        if (StrUtil.startWithAnyIgnoreCase(dialect.getName(), "Mysql", "MariaDB")) {
+                            sourceSql = sourceSql.replaceAll("\"", "`");
+                        } else {
+                            sourceSql = sourceSql.replaceAll("`", "\"");
+                        }
+                        String[] arrDDL = new String[]{sourceSql};
+                        result.put(tableVO.getTableName(), arrDDL);
+                    }
+                    if (StrUtil.isNotEmpty(extendVO.getAbnormalDDL())) {
+                        String[] arrDDL = new String[]{
+                                "-- 无法解析",
+                                "-- " + extendVO.getAbnormalDDL()
+                        };
+                        result.put(tableVO.getTableName(), arrDDL);
+                    }
                     continue;
                 }
 
                 TableModel tableModel = new TableModel();
                 // 表名
                 tableModel.setTableName(parcelName(dialect, tableVO.getTableName()));
+
                 // 表描述
                 tableModel.setComment(tableVO.getComment());
                 // 设置字段信息
@@ -188,6 +205,7 @@ public abstract class DDLUtil {
         }
         return name;
     }
+
 
     public static Type colDef2DialectType(Dialect dialect, String columnDefination) {
         String columnDef = StrUtils.substringBefore(columnDefination, "(");
@@ -314,7 +332,11 @@ public abstract class DDLUtil {
                 // 过滤掉以 -- 或 # 开头的行以及空行
                 .filter(line -> !line.trim().isEmpty() && !line.trim().startsWith("--") && !line.trim().startsWith("#"))
                 // 替换注释中的 ; 成中文的 ；
-                .map(line -> line.replaceAll("(')([^']*);([^']*)(')", "$1$2；$3$4"))
+                .map(line -> {
+                    line = line.replaceAll("(\\s+)", " ");
+                    line = CommonUtil.replaceInQuotes(line, ";", "；");
+                    return line;
+                })
                 // 将剩余行拼接成一个字符串
                 .collect(Collectors.joining(" "))
                 // 按 ; 切分
@@ -323,12 +345,22 @@ public abstract class DDLUtil {
         // .split(";(?=(?:[^']*'[^']*')*[^']*$)")
 
         Map<String, TableVO> tableVoMap = new LinkedHashMap<>();
+        Set<String> dropSet = new HashSet<>();
         Map<String, String> commentMap = new HashMap<>();
         Map<String, List<IndexVO>> indexListMap = new HashMap<>();
         for (String ddl : arrDDL) {
+            if (StrUtil.isEmpty(ddl.trim())) {
+                continue;
+            }
             try {
                 String marker = "geometry|geography|_geometry|st_geomfromtext|st_setsrid|st_makepoint";
-                String ddl2 = ddl.replaceAll("(\\s+)([^\\s]*\\.)(?=(" + marker + "))", " ");
+                String ddl2 = ddl.replaceAll("(\\s+)([^\\s]*\\.)(?=(?i)(" + marker + "))", " ");
+
+                if (StrUtil.startWithAnyIgnoreCase(ddl2.trim(), "create table")
+                        && StrUtil.containsIgnoreCase(ddl2, "unique index")) {
+                    ddl2 = ddl.replaceAll("(?<=(?i)UNIQUE).*?(?=\\()", " ");
+                }
+
                 // 解析SQL语句
                 Statement statement = CCJSqlParserUtil.parse(ddl2);
                 // 如果是建表语句
@@ -336,15 +368,16 @@ public abstract class DDLUtil {
                     CreateTable createTable = (CreateTable) statement;
                     // 提取表名
                     Table table = createTable.getTable();
+                    String tableName = table.getName().replaceAll("[`\"]", "");
 
-                    TableVO tableVO = ObjectUtil.defaultIfNull(tableVoMap.get(table.getName()), new TableVO());
-                    tableVO.setTableName(table.getName().replaceAll("[`\"]", ""));
+                    TableVO tableVO = ObjectUtil.defaultIfNull(tableVoMap.get(tableName), new TableVO());
+                    tableVO.setTableName(tableName);
 
                     List<ColumnDefinition> columns = createTable.getColumnDefinitions();
                     List<ColumnVO> columnList = columns.stream()
                             .map(columnDefinition -> {
                                 ColumnVO columnVO = new ColumnVO();
-                                columnVO.setTableName(table.getName().replaceAll("[`\"]", ""));
+                                columnVO.setTableName(tableName);
                                 columnVO.setName(columnDefinition.getColumnName().replaceAll("[`\"]", ""));
 
                                 ColDataType colDataType = columnDefinition.getColDataType();
@@ -398,9 +431,12 @@ public abstract class DDLUtil {
                     List<IndexVO> indexVOList = new ArrayList<>();
                     if (CollUtil.isNotEmpty(indexList)) {
                         for (Index index : indexList) {
+                            List<String> columnsNames = index.getColumnsNames().stream()
+                                    .map(column -> column.replaceAll("[`\"]", ""))
+                                    .collect(Collectors.toList());
                             if (StrUtil.equalsIgnoreCase(index.getType(), "primary key")) {
                                 for (ColumnVO columnVO : columnList) {
-                                    if (CollUtil.contains(index.getColumnsNames(), columnVO.getName())) {
+                                    if (CollUtil.contains(columnsNames, columnVO.getName())) {
                                         columnVO.setPk(true);
                                     }
                                 }
@@ -410,11 +446,11 @@ public abstract class DDLUtil {
                                 if (StrUtil.isNotEmpty(index.getName())) {
                                     indexVO.setIndexName(index.getName().replaceAll("[`\"]", ""));
                                 } else {
-                                    indexVO.setIndexName((indexVO.isNonUnique() ? "unique_idx_" : "idx_") + table.getName()
-                                            + "_" + CollUtil.join(index.getColumnsNames(), "_"));
+                                    indexVO.setIndexName((indexVO.isNonUnique() ? "unique_idx_" : "idx_") + tableName
+                                            + "_" + CollUtil.join(columnsNames, "_"));
                                 }
-                                indexVO.setTableName(table.getName().replaceAll("[`\"]", ""));
-                                indexVO.setColumnList(Convert.toStrArray(index.getColumnsNames()));
+                                indexVO.setTableName(tableName);
+                                indexVO.setColumnList(Convert.toStrArray(columnsNames));
                                 indexVOList.add(indexVO);
                             }
                         }
@@ -454,32 +490,44 @@ public abstract class DDLUtil {
                 if (statement instanceof CreateIndex) {
                     CreateIndex createIndex = (CreateIndex) statement;
                     Table table = createIndex.getTable();
-                    List<IndexVO> indexVOList = indexListMap.get(table.getName());
+                    String tableName = table.getName().replaceAll("[`\"]", "");
+                    List<IndexVO> indexVOList = indexListMap.get(tableName);
                     if (CollUtil.isEmpty(indexVOList)) {
                         indexVOList = new ArrayList<>();
-                        indexListMap.put(table.getName(), indexVOList);
+                        indexListMap.put(tableName, indexVOList);
                     }
                     Index index = createIndex.getIndex();
+                    List<String> columnsNames = index.getColumnsNames().stream()
+                            .map(column -> column.replaceAll("[`\"]", ""))
+                            .collect(Collectors.toList());
 
                     IndexVO indexVO = new IndexVO();
                     indexVO.setNonUnique(StrUtil.containsIgnoreCase(index.getType(), "unique"));
                     if (StrUtil.isNotEmpty(index.getName())) {
                         indexVO.setIndexName(index.getName().replaceAll("[`\"]", ""));
                     } else {
-                        indexVO.setIndexName((indexVO.isNonUnique() ? "unique_idx_" : "idx_") + table.getName()
-                                + "_" + CollUtil.join(index.getColumnsNames(), "_"));
+                        indexVO.setIndexName((indexVO.isNonUnique() ? "unique_idx_" : "idx_") + tableName
+                                + "_" + CollUtil.join(columnsNames, "_"));
                     }
-                    indexVO.setTableName(table.getName().replaceAll("[`\"]", ""));
-                    indexVO.setColumnList(Convert.toStrArray(index.getColumnsNames()));
+                    indexVO.setTableName(tableName);
+                    indexVO.setColumnList(Convert.toStrArray(columnsNames));
                     indexVOList.add(indexVO);
                     continue;
                 }
-                throw new SQLException("暂不解析当前SQL类型语句");
+                // 如果是Drop语句
+                if (statement instanceof Drop) {
+                    Drop drop = (Drop) statement;
+                    String tableName = drop.getName().getFullyQualifiedName().replaceAll("[`\"]", "");
+                    fillTableInfo(tableVoMap, ExtendVO.withDropTable(tableName));
+                    continue;
+                }
+                // 如果是Set语句
+                if (statement instanceof SetStatement) {
+                    throw new ServiceException("不解析SET语句，避免不同数据库类型不兼容");
+                }
+                fillTableInfo(tableVoMap, ExtendVO.withSourceSQL(ddl));
             } catch (Exception exception) {
-                TableVO tableVO = new TableVO();
-                tableVO.setTableName(IdUtil.nanoId());
-                tableVO.setAbnormalDDL(ddl);
-                tableVoMap.put(tableVO.getTableName(), tableVO);
+                fillTableInfo(tableVoMap, ExtendVO.withAbnormalDDL(ddl));
                 log.error("异常DDL: " + ddl);
                 log.error("解析失败", exception);
             }
@@ -609,5 +657,12 @@ public abstract class DDLUtil {
                 return Types.OTHER;
 //                throw new DialectException("Unsupported Types:" + dialectType);
         }
+    }
+
+    private static void fillTableInfo(Map<String, TableVO> tableVoMap, ExtendVO extendVO) {
+        TableVO tableVO = new TableVO();
+        tableVO.setTableName(IdUtil.nanoId());
+        tableVO.setExtend(extendVO);
+        tableVoMap.put(tableVO.getTableName(), tableVO);
     }
 }

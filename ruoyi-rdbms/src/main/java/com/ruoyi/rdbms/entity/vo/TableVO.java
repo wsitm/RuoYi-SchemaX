@@ -57,9 +57,10 @@ public class TableVO implements Serializable {
     private List<IndexVO> indexList;
 
     /**
-     * 异常语句，用于承接解析异常的DDL
+     * DDL转换其余信息
      */
-    private String abnormalDDL;
+    private ExtendVO extend;
+
 
     public String getSchema() {
         return schema;
@@ -118,11 +119,12 @@ public class TableVO implements Serializable {
         this.indexList = indexList;
     }
 
-    public String getAbnormalDDL() {
-        return abnormalDDL;
+
+    public ExtendVO getExtend() {
+        return extend;
     }
 
-    public void setAbnormalDDL(String abnormalDDL) {
-        this.abnormalDDL = abnormalDDL;
+    public void setExtend(ExtendVO extend) {
+        this.extend = extend;
     }
 }

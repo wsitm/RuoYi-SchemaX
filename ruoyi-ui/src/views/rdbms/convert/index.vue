@@ -83,7 +83,7 @@
               </el-select>
             </el-form-item>
           </el-form>
-          <div style="height: calc(100% - 60px)">
+          <div id="right_cont" style="height: calc(100% - 60px)">
             <codemirror
               v-if="outputType===1"
               ref="codeMirrorRight"
@@ -97,6 +97,10 @@
               class="univer-sheet"
               :workbook-data="workbookDataRight"/>
           </div>
+          <span v-if="converting" style="font-size: 12px;">
+            <i class="el-icon-loading" style="font-size: 14px;font-weight: bold;"></i>
+            转换中...
+          </span>
         </el-card>
       </el-col>
     </el-row>
@@ -169,6 +173,8 @@ export default {
       workbookDataLeft: {...DEFAULT_WORKBOOK_DATA},
       tableInfoListLeft: [],
       tableInfoListRight: [],
+
+      converting: false
     }
   },
   watch: {
@@ -205,6 +211,7 @@ export default {
       if (!this.contentLeft) {
         return;
       }
+      this.converting = true;
       const params = {
         inputType: this.inputType,
         inputDDL: this.contentLeft,
@@ -230,6 +237,8 @@ export default {
             this.tableInfoListRight = res.data;
           }
         }
+      }).finally(() => {
+        this.converting = false;
       });
     }, 200),
 
@@ -238,6 +247,7 @@ export default {
       this.tableInfoListLeft = workbookDataToTableInfo(this.$refs.sheetLeft.getData());
       this.convertDDL();
     },
+
     uploadSuccess(res, file) {
       if (res.data) {
         this.workbookDataLeft = {
@@ -248,7 +258,6 @@ export default {
         };
       }
     }
-
   }
 };
 </script>
