@@ -2,10 +2,10 @@
   <div class="app-container home">
     <el-row :gutter="20">
       <el-col :sm="24" :lg="12" style="padding-left: 20px">
-        <h2>RuoYi-RDBMS简易工具</h2>
+        <h2>RuoYi-RDBMS快捷工具</h2>
         <!--        <h3>若依后台管理框架</h3>-->
         <p>
-          <strong>基于ruoyi框架开发的RDBMS简易工具</strong>
+          <strong>基于ruoyi框架开发的RDBMS快捷工具</strong>
           <!--          <br/>-->
           <!--          <br/>-->
           <!--          <strong>ruoyi-rdbms工具能做什么</strong>-->

@@ -62,7 +62,7 @@ public abstract class DDLUtil {
                     }
                     if (StrUtil.isNotEmpty(extendVO.getSourceSQL())) {
                         String sourceSql = extendVO.getSourceSQL();
-                        if (StrUtil.startWithAnyIgnoreCase(dialect.getName(), "Mysql", "MariaDB")) {
+                        if (StrUtil.startWithAnyIgnoreCase(dialect.getName(), "Mysql", "MariaDB", "ClickHouse")) {
                             sourceSql = sourceSql.replaceAll("\"", "`");
                         } else {
                             sourceSql = sourceSql.replaceAll("`", "\"");
@@ -83,7 +83,6 @@ public abstract class DDLUtil {
                 TableModel tableModel = new TableModel();
                 // 表名
                 tableModel.setTableName(parcelName(dialect, tableVO.getTableName()));
-
                 // 表描述
                 tableModel.setComment(tableVO.getComment());
                 // 设置字段信息
@@ -94,7 +93,8 @@ public abstract class DDLUtil {
                     if (columnVO.isPk()) {
                         pKeyList.add(columnVO.getName());
                     }
-                    if (columnVO.isAutoIncrement()) {
+                    if (columnVO.isAutoIncrement()
+                            && !DDLFeatures.NOT_SUPPORT.equals(dialect.getDdlFeatures().getIdentityColumnString())) {
                         columnModel.setIdGenerationType(GenerationType.IDENTITY);
                     }
 
@@ -128,11 +128,17 @@ public abstract class DDLUtil {
                         columnModel.setScale(columnVO.getDigit());
                     }
                     if (StrUtil.isNotEmpty(columnVO.getColumnDef())) {
-                        columnModel.setDefaultValue(columnVO.getColumnDef());
-//                        columnModel.setDefaultValue(String.format("'%s'", column.getColumnDef()));
+                        if (ListUtil.of(Types.VARCHAR, Types.CHAR, Types.LONGVARCHAR, Types.LONGVARBINARY, Types.NVARCHAR).contains(columnVO.getType())
+                                && !StrUtil.startWith(columnVO.getColumnDef(), "'")) {
+                            columnModel.setDefaultValue(String.format("'%s'", columnVO.getColumnDef()));
+                        } else {
+                            columnModel.setDefaultValue(columnVO.getColumnDef());
+                        }
                     }
                     columnModel.setNullable(columnVO.isNullable());
-                    columnModel.setComment(columnVO.getComment());
+                    if (StrUtil.isNotEmpty(columnVO.getComment())) {
+                        columnModel.setComment(columnVO.getComment().replace("'", "\\'"));
+                    }
                 }
                 // 设置表索引
                 if (CollUtil.isNotEmpty(tableVO.getIndexList())) {
@@ -143,7 +149,7 @@ public abstract class DDLUtil {
                                     .map(indexVO -> {
                                         IndexModel indexModel = new IndexModel();
                                         indexModel.setName(parcelName(dialect, indexVO.getIndexName()));
-                                        indexModel.setUnique(indexVO.isNonUnique());
+                                        indexModel.setUnique(!indexVO.isNonUnique());
                                         indexModel.setColumnList(indexVO.getColumnList());
                                         return indexModel;
                                     })
@@ -152,42 +158,48 @@ public abstract class DDLUtil {
                 }
 
                 // TODO 补充mysql的表描述
-                if (StrUtil.isNotEmpty(tableModel.getComment())
-                        && StrUtil.startWithAnyIgnoreCase(dialect.getName(), "Mysql", "MariaDB")) {
-                    tableModel.setEngineTail(
-                            StrUtil.emptyToDefault(tableModel.getEngineTail(), "") + String.format(" comment='%s'", tableModel.getComment()));
+                if (StrUtil.isNotEmpty(tableModel.getComment())) {
+                    if (StrUtil.startWithAnyIgnoreCase(dialect.getName(), "Mysql", "MariaDB")) {
+                        tableModel.setEngineTail(
+                                StrUtil.emptyToDefault(tableModel.getEngineTail(), "") + String.format(" comment='%s'", tableModel.getComment()));
+                    }
+                    if (StrUtil.startWithAnyIgnoreCase(dialect.getName(), "ClickHouse")) {
+                        tableModel.setTableTail(
+                                StrUtil.emptyToDefault(tableModel.getEngineTail(), "") + String.format(" comment '%s'", tableModel.getComment()));
+                    }
                 }
 
-                String[] arrDDL = dialect.toCreateDDL(tableModel);
+                String[] arrDDL = DDLCreateUtils.toCreateDDL(dialect, tableModel);
                 result.put(tableVO.getTableName(), arrDDL);
             } catch (Exception e) {
+                String[] arrDDL = new String[]{"-- 解析 " + tableVO.getTableName() + " 表失败，" + e.getMessage()};
+                result.put(tableVO.getTableName(), arrDDL);
                 log.error("生成DDL异常: " + tableVO.getTableName(), e);
-                throw new ServiceException("生成DDL异常");
             }
         }
         return result;
     }
 
-    public static Dialect guessDialect(DataSource dataSource) {
-        int majorVersion = 0;
-        int minorVersion = 0;
-        try (Connection connection = dataSource.getConnection()) {
-            DatabaseMetaData meta = connection.getMetaData();
-            String driverName = meta.getDriverName();
-            String databaseName = meta.getDatabaseProductName();
-            try {
-                majorVersion = meta.getDatabaseMajorVersion();
-                minorVersion = meta.getDatabaseMinorVersion();
-            } catch (Exception e) {
-                // 达梦的jdbc有问题，可能会导致这一步异常
-                log.error("获取数据库版本失败: " + e.getMessage());
-            }
-            return GuessDialectUtils.guessDialect(driverName, databaseName, majorVersion, minorVersion);
-        } catch (Exception e) {
-            log.error("推断方言失败: ", e);
-            throw new ServiceException("推断方言失败：" + e.getMessage());
-        }
-    }
+//    public static Dialect guessDialect(DataSource dataSource) {
+//        int majorVersion = 0;
+//        int minorVersion = 0;
+//        try (Connection connection = dataSource.getConnection()) {
+//            DatabaseMetaData meta = connection.getMetaData();
+//            String driverName = meta.getDriverName();
+//            String databaseName = meta.getDatabaseProductName();
+//            try {
+//                majorVersion = meta.getDatabaseMajorVersion();
+//                minorVersion = meta.getDatabaseMinorVersion();
+//            } catch (Exception e) {
+//                // 达梦的jdbc有问题，可能会导致这一步异常
+//                log.error("获取数据库版本失败: " + e.getMessage());
+//            }
+//            return GuessDialectUtils.guessDialect(driverName, databaseName, majorVersion, minorVersion);
+//        } catch (Exception e) {
+//            log.error("推断方言失败: ", e);
+//            throw new ServiceException("推断方言失败：" + e.getMessage());
+//        }
+//    }
 
     /**
      * 判断名称是否为保留字段，如果是保留字段则以 引号 包含
@@ -200,24 +212,23 @@ public abstract class DDLUtil {
         boolean reserved = ReservedDBWords.isReservedWord(name);
         if (reserved || !RdbmsConstants.RDBMS_PATTERN.matcher(name).find()) {
             String dialectName = dialect.getName();
-            String strFmt = StrUtil.startWithAnyIgnoreCase(dialectName, "MySQL", "MariaDB") ? "`%s`" : "\"%s\"";
+            String strFmt = StrUtil.startWithAnyIgnoreCase(dialectName, "MySQL", "MariaDB", "ClickHouse") ? "`%s`" : "\"%s\"";
             return String.format(strFmt, name);
         }
         return name;
     }
 
-
-    public static Type colDef2DialectType(Dialect dialect, String columnDefination) {
-        String columnDef = StrUtils.substringBefore(columnDefination, "(");
-        if ("TEXT".equalsIgnoreCase(columnDef)) {
-            return Type.VARCHAR;
-        }
-        if ("DATETIME".equalsIgnoreCase(columnDef)) {
-            //DATETIME is only DB column type, no Java type
-            return Type.TIMESTAMP;
-        }
-        return Type.getByTypeName(columnDef);
-    }
+//    public static Type colDef2DialectType(Dialect dialect, String columnDefination) {
+//        String columnDef = StrUtils.substringBefore(columnDefination, "(");
+//        if ("TEXT".equalsIgnoreCase(columnDef)) {
+//            return Type.VARCHAR;
+//        }
+//        if ("DATETIME".equalsIgnoreCase(columnDef)) {
+//            //DATETIME is only DB column type, no Java type
+//            return Type.TIMESTAMP;
+//        }
+//        return Type.getByTypeName(columnDef);
+//    }
 
 
     /**
@@ -345,7 +356,7 @@ public abstract class DDLUtil {
         // .split(";(?=(?:[^']*'[^']*')*[^']*$)")
 
         Map<String, TableVO> tableVoMap = new LinkedHashMap<>();
-        Set<String> dropSet = new HashSet<>();
+//        Set<String> dropSet = new HashSet<>();
         Map<String, String> commentMap = new HashMap<>();
         Map<String, List<IndexVO>> indexListMap = new HashMap<>();
         for (String ddl : arrDDL) {
@@ -442,7 +453,7 @@ public abstract class DDLUtil {
                                 }
                             } else {
                                 IndexVO indexVO = new IndexVO();
-                                indexVO.setNonUnique(StrUtil.containsIgnoreCase(index.getType(), "unique"));
+                                indexVO.setNonUnique(!StrUtil.containsIgnoreCase(index.getType(), "unique"));
                                 if (StrUtil.isNotEmpty(index.getName())) {
                                     indexVO.setIndexName(index.getName().replaceAll("[`\"]", ""));
                                 } else {
@@ -502,7 +513,7 @@ public abstract class DDLUtil {
                             .collect(Collectors.toList());
 
                     IndexVO indexVO = new IndexVO();
-                    indexVO.setNonUnique(StrUtil.containsIgnoreCase(index.getType(), "unique"));
+                    indexVO.setNonUnique(!StrUtil.containsIgnoreCase(index.getType(), "unique"));
                     if (StrUtil.isNotEmpty(index.getName())) {
                         indexVO.setIndexName(index.getName().replaceAll("[`\"]", ""));
                     } else {
@@ -566,7 +577,6 @@ public abstract class DDLUtil {
         return new ArrayList<>(tableVoMap.values());
     }
 
-
     public static int dialectTypeToJavaSqlType(String dialectType) {
         if (dialectType.startsWith("_")) {
             dialectType = StrUtil.removePrefix(dialectType, "_");
@@ -574,19 +584,22 @@ public abstract class DDLUtil {
         if (StrUtil.equalsAnyIgnoreCase(dialectType, "serial", "int4", "int2", "int")) {
             return Types.INTEGER;
         }
-        if (StrUtil.equalsAnyIgnoreCase(dialectType, "bigserial", "int8")) {
+        if (StrUtil.equalsAnyIgnoreCase(dialectType, "bigserial", "int8", "Int16", "Int32", "Int64")) {
             return Types.BIGINT;
         }
-        if (StrUtil.equalsAnyIgnoreCase(dialectType, "float8")) {
+        if (StrUtil.equalsAnyIgnoreCase(dialectType, "float8", "Float64")) {
             return Types.DOUBLE;
+        }
+        if (StrUtil.equalsAnyIgnoreCase(dialectType, "Float32")) {
+            return Types.FLOAT;
         }
         if (StrUtil.equalsAnyIgnoreCase(dialectType, "number", "numeric")) {
             return Types.NUMERIC;
         }
-        if (StrUtil.equalsAnyIgnoreCase(dialectType, "datetime")) {
+        if (StrUtil.equalsAnyIgnoreCase(dialectType, "datetime", "DateTime64")) {
             return Types.TIMESTAMP;
         }
-        if (StrUtil.equalsAnyIgnoreCase(dialectType, "long", "text")) {
+        if (StrUtil.equalsAnyIgnoreCase(dialectType, "long", "text", "String")) {
             return Types.LONGVARCHAR;
         }
         if (StrUtil.equalsAnyIgnoreCase(dialectType, "jsonb")) {
@@ -595,10 +608,10 @@ public abstract class DDLUtil {
         if (StrUtil.equalsAnyIgnoreCase(dialectType, "geometry", "geography")) {
             return Types.OTHER;
         }
-        if (StrUtil.equalsAnyIgnoreCase(dialectType, "bytea")) {
+        if (StrUtil.equalsAnyIgnoreCase(dialectType, "bytea", "FixedString")) {
             return Types.BINARY;
         }
-        if (StrUtil.equalsAnyIgnoreCase(dialectType, "bool")) {
+        if (StrUtil.equalsAnyIgnoreCase(dialectType, "bool", "UInt8")) {
             return Types.BIT;
         }
         Type type = Type.getByTypeName(dialectType);
@@ -658,6 +671,7 @@ public abstract class DDLUtil {
 //                throw new DialectException("Unsupported Types:" + dialectType);
         }
     }
+
 
     private static void fillTableInfo(Map<String, TableVO> tableVoMap, ExtendVO extendVO) {
         TableVO tableVO = new TableVO();

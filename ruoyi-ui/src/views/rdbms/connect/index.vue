@@ -3,19 +3,19 @@
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="连接名称" prop="connectName">
         <el-input
-            v-model="queryParams.connectName"
-            placeholder="请输入连接名称"
-            clearable
-            @keyup.enter.native="handleQuery"
+          v-model="queryParams.connectName"
+          placeholder="请输入连接名称"
+          clearable
+          @keyup.enter.native="handleQuery"
         />
       </el-form-item>
       <el-form-item label="驱动" prop="jdbcId">
         <el-select v-model="queryParams.jdbcId" placeholder="请选择驱动" clearable>
           <el-option
-              v-for="dict in jdbcList"
-              :key="dict.jdbcId"
-              :label="dict.jdbcName"
-              :value="dict.jdbcId"
+            v-for="dict in jdbcList"
+            :key="dict.jdbcId"
+            :label="dict.jdbcName"
+            :value="dict.jdbcId"
           ></el-option>
         </el-select>
       </el-form-item>
@@ -104,19 +104,19 @@
         <template slot-scope="scope">
           <el-tooltip content="查看连接信息详情，基本信息列表，表结构信息，DDL语句信息">
             <el-button
-                size="mini"
-                type="text"
-                icon="el-icon-help"
-                @click="toPage(scope.row)"
+              size="mini"
+              type="text"
+              icon="el-icon-help"
+              @click="toPage(scope.row)"
             >详情
             </el-button>
           </el-tooltip>
           <el-tooltip content="测试数据库连接是否正常">
             <el-button
-                size="mini"
-                type="text"
-                icon="el-icon-link"
-                @click="handleCheck(scope.row)"
+              size="mini"
+              type="text"
+              icon="el-icon-link"
+              @click="handleCheck(scope.row)"
             >测试
             </el-button>
           </el-tooltip>
@@ -167,10 +167,10 @@
         <el-form-item label="驱动" prop="jdbcId">
           <el-select v-model="form.jdbcId" placeholder="请选择驱动" style="width: 100%;">
             <el-option
-                v-for="dict in jdbcList"
-                :key="dict.jdbcId"
-                :label="dict.jdbcName"
-                :value="dict.jdbcId"
+              v-for="dict in jdbcList"
+              :key="dict.jdbcId"
+              :label="dict.jdbcName"
+              :value="dict.jdbcId"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -387,7 +387,7 @@ export default {
     /** 测试数据库连通性 */
     handleCheck(data) {
       checkConnect(data).then(response => {
-        this.$modal.msgSuccess("测试通过");
+        this.$modal.notifySuccess("测试通过");
       });
     },
 
@@ -395,7 +395,7 @@ export default {
     flushCache(row) {
       flushCache(row.connectId).then(response => {
         row.cacheType = 2; // 标记成加载中
-        this.$modal.msgSuccess("刷新缓存已提交");
+        this.$modal.notifySuccess("刷新缓存已提交");
       });
     },
 
@@ -415,13 +415,13 @@ export default {
         if (valid) {
           if (this.form.connectId != null) {
             updateConnect(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
+              this.$modal.notifySuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
             addConnect(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
+              this.$modal.notifySuccess("新增成功");
               this.open = false;
               this.getList();
             });
@@ -436,7 +436,7 @@ export default {
         return delConnect(connectIds);
       }).then(() => {
         this.getList();
-        this.$modal.msgSuccess("删除成功");
+        this.$modal.notifySuccess("删除成功");
       }).catch(() => {
       });
     },
@@ -461,10 +461,13 @@ export default {
     handleExportInfo() {
       const row = this.exportInfo.row;
       this.download(`rdbms/connect/export/${row.connectId}/tableInfo`,
-          {skipStrs: this.exportInfo.skipStrs},
-          `表结构信息_${row.connectName}_${new Date().getTime()}.xlsx`,
-          {timeout: 60000});
+        {skipStrs: this.exportInfo.skipStrs},
+        `表结构信息_${row.connectName}_${new Date().getTime()}.xlsx`,
+        {timeout: 60000});
     },
+  },
+  deactivated() {
+    clearInterval(this.timer);
   },
   destroyed() {
     clearInterval(this.timer);
