@@ -48,6 +48,9 @@ VALUES(4, 'opengauss-jdbc', 'opengauss-jdbc-5.0.0-og.jar', 'org.opengauss.Driver
 INSERT INTO dim_jdbc_info
 (jdbc_id, jdbc_name, jdbc_file, driver_class, create_by, create_time)
 VALUES(5, 'postgres-jdbc', 'postgresql-42.7.4.jar', 'org.postgresql.Driver', 'admin', '2025-02-05 09:56:14');
+INSERT INTO dim_jdbc_info
+(jdbc_id, jdbc_name, jdbc_file, driver_class, create_by, create_time)
+VALUES(6, 'hive2-jdbc', 'hive-jdbc-uber-2.6.5.0-292.jar', 'org.apache.hive.jdbc.HiveDriver', 'admin', '2025-03-02 00:56:14');
 
 
 
