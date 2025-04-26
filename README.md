@@ -47,58 +47,58 @@
   <li>
     <strong>驱动列表</strong>
     <br>
-    <img src="doc/img/驱动管理@01.png" width="80%" alt="驱动管理@01">
+    <img src="https://oscimg.oschina.net/oscnet/up-c98a1c2aad266662dabbd6a76c1b9681dda.png" width="65%" alt="驱动管理@01">
   </li>
   <li>
     <strong>添加驱动</strong>
     <br>
-    <img src="doc/img/驱动管理@02.png" width="80%" alt="驱动管理@02">
+    <img src="https://oscimg.oschina.net/oscnet/up-b42dd0d12c152f4b3334dcc43a28ede5248.png" width="65%" alt="驱动管理@02">
   </li>
 
   <li>
     <strong>连接配置列表</strong>
     <br>
-    <img src="doc/img/连接配置@01.png" width="80%" alt="连接配置@01">
+    <img src="https://oscimg.oschina.net/oscnet/up-cb44198e9272dd07150a2cf248b9e00247d.png" width="65%" alt="连接配置@01">
   </li>
   <li>
     <strong>连接配置-导出表结构</strong>
     <br>
-    <img src="doc/img/连接配置@02.png" width="80%" alt="连接配置@02">
+    <img src="https://oscimg.oschina.net/oscnet/up-a7a2b4126fba97530f220ec58191857ccaf.png" width="65%" alt="连接配置@02">
     <br>
-    <img src="doc/img/连接配置@03.png" width="80%" alt="连接配置@03">
+    <img src="https://oscimg.oschina.net/oscnet/up-2ff77b676f1e256c850cfc944c812d2a6b3.png" width="65%" alt="连接配置@03">
     <br>
-    <img src="doc/img/连接配置@04.png" width="80%" alt="连接配置@04">
+    <img src="https://oscimg.oschina.net/oscnet/up-b4d39ed3429c471f407e2443cae0e21af7f.png" width="65%" alt="连接配置@04">
   </li>
   <li>
     <strong>连接配置-查看详情-基本列表</strong>
     <br>
-    <img src="doc/img/连接配置@05.png" width="80%" alt="连接配置@05">
+    <img src="https://oscimg.oschina.net/oscnet/up-1760c226707288127839e8c472fda53d864.png" width="65%" alt="连接配置@05">
   </li>
   <li>
     <strong>连接配置-查看详情-表结构信息</strong>
     <br>
-    <img src="doc/img/连接配置@06.png" width="80%" alt="连接配置@06">
+    <img src="https://oscimg.oschina.net/oscnet/up-59ea2e62904787a9ab92090e27aed9398c9.png" width="65%" alt="连接配置@06">
   </li>
   <li>
     <strong>连接配置-查看详情-查看DDL语句</strong>
     <br>
-    <img src="doc/img/连接配置@07.png" width="80%" alt="连接配置@07">
+    <img src="https://oscimg.oschina.net/oscnet/up-e8b05e8c95384779f826f0aa92fb8f5d57e.png" width="65%" alt="连接配置@07">
   </li>
 
   <li>
     <strong>DDL转换DDL</strong>
     <br>
-    <img src="doc/img/DDL转换@01.png" width="80%" alt="DDL转换@01">
+    <img src="https://oscimg.oschina.net/oscnet/up-f76eba89debf3a7808fdae05d740d4ba88f.png" width="65%" alt="DDL转换@01">
   </li>
   <li>
     <strong>DDL转换，切换数据库方言</strong>
     <br>
-    <img src="doc/img/DDL转换@02.png" width="80%" alt="DDL转换@02">
+    <img src="https://oscimg.oschina.net/oscnet/up-b9c6be62ac3168949a0ee1cad007fa6e53d.png" width="65%" alt="DDL转换@02">
   </li>
   <li>
     <strong>DDL转换表结构</strong>
     <br>
-    <img src="doc/img/DDL转换@03.png" width="80%" alt="DDL转换@03">
+    <img src="https://oscimg.oschina.net/oscnet/up-bfe1d3f875fe97b5315e9902600c887df50.png" width="65%" alt="DDL转换@03">
   </li>
 </ul>
 
@@ -122,7 +122,6 @@
 - 前端补充 @sqltools/formatter、@univerjs/* 、vue-codemirror 和 xe-utils 这些三方库
 - 前端 vue.config.js 的 plugins 配置补充 UniverPlugin
 
-## 捐献支持
-
-<img src="ruoyi-ui/src/assets/images/pay.png" width="50%" alt="捐献支持">
-<p>你可以请作者喝杯咖啡表示鼓励</p>
+<!--  ## 捐献支持 -->
+<!--  <img src="ruoyi-ui/src/assets/images/pay.png" width="50%" alt="捐献支持"> -->
+<!--  <p>你可以请作者喝杯咖啡表示鼓励</p> -->
