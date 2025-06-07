@@ -8,15 +8,14 @@
               <el-form-item label="输入类型" prop="inputType">
                 <el-select v-model="inputType"
                            filterable
-                           disabled
                            @change="onLeftTypeChange"
                            placeholder="请选择类型"
                            style="width: 100px;">
                   <el-option
-                      v-for="item in ENUM.convertType"
-                      :key="item.type"
-                      :label="item.name"
-                      :value="item.type">
+                    v-for="item in ENUM.convertType"
+                    :key="item.type"
+                    :label="item.name"
+                    :value="item.type">
                   </el-option>
                 </el-select>
               </el-form-item>
@@ -24,30 +23,32 @@
                 <el-button type="primary" icon="el-icon-d-arrow-right" size="small"
                            @click="excelDataToDDL">生成
                 </el-button>
+                <!--    TODO 待添加导入     -->
                 <el-upload
-                    class="upload-demo"
-                    :action="uploadURL"
-                    :multiple="false"
-                    :headers="headers"
-                    :on-success="uploadSuccess"
-                    :show-file-list="false">
-                  <el-button type="info" icon="el-icon-upload2" size="small">导入</el-button>
+                  v-if="false"
+                  :action="uploadURL"
+                  :multiple="false"
+                  :headers="headers"
+                  :on-success="uploadSuccess"
+                  :show-file-list="false"
+                  class="upload-demo">
+                  <el-button type="primary" icon="el-icon-upload2" size="small">导入</el-button>
                 </el-upload>
               </el-form-item>
             </el-form>
             <div style="height: calc(100% - 40px)">
               <codemirror
-                  v-if="inputType===1"
-                  ref="codeMirrorLeft"
-                  v-model="contentLeft"
-                  :options="cmOption"
-                  class="code-mirror"
+                v-if="inputType===1"
+                ref="codeMirrorLeft"
+                v-model="contentLeft"
+                :options="cmOption"
+                class="code-mirror"
               />
               <univer-sheet
-                  v-if="inputType===2"
-                  ref="sheetLeft"
-                  class="univer-sheet"
-                  :workbook-data="workbookDataLeft"/>
+                v-if="inputType===2"
+                ref="sheetLeft"
+                class="univer-sheet"
+                :workbook-data="workbookDataLeft"/>
             </div>
           </el-col>
         </pane>
@@ -57,14 +58,14 @@
               <el-form-item label="输出类型" prop="outputType" label-width="80px">
                 <el-select v-model="outputType"
                            filterable
-                           @change="convertDDL"
+                           @change="onRightTypeChange"
                            placeholder="请选择类型"
                            style="width: 100px;">
                   <el-option
-                      v-for="item in ENUM.convertType"
-                      :key="item.type"
-                      :label="item.name"
-                      :value="item.type">
+                    v-for="item in ENUM.convertType"
+                    :key="item.type"
+                    :label="item.name"
+                    :value="item.type">
                   </el-option>
                 </el-select>
               </el-form-item>
@@ -76,27 +77,27 @@
                            placeholder="请选择数据库方言"
                            style="width: 150px;">
                   <el-option
-                      v-for="item in dialects"
-                      :key="item.database"
-                      :label="item.database"
-                      :value="item.database">
+                    v-for="item in dialects"
+                    :key="item.database"
+                    :label="item.database"
+                    :value="item.database">
                   </el-option>
                 </el-select>
               </el-form-item>
             </el-form>
             <div id="right_cont" style="height: calc(100% - 40px)">
               <codemirror
-                  v-if="outputType===1"
-                  ref="codeMirrorRight"
-                  v-model="contentRight"
-                  :options="cmOption"
-                  class="code-mirror"
+                v-if="outputType===1"
+                ref="codeMirrorRight"
+                v-model="contentRight"
+                :options="cmOption"
+                class="code-mirror"
               />
               <univer-sheet
-                  v-if="outputType===2"
-                  ref="sheetRight"
-                  class="univer-sheet"
-                  :workbook-data="workbookDataRight"/>
+                v-if="outputType===2"
+                ref="sheetRight"
+                class="univer-sheet"
+                :workbook-data="workbookDataRight"/>
             </div>
             <span v-if="converting" class="converting">
               <i class="el-icon-loading" style="font-weight: bold;"></i>
@@ -164,7 +165,7 @@ export default {
           type: 2, name: "Excel"
         }]
       },
-      uploadURL: process.env.VUE_APP_BASE_API + "/rdbms/ddl/upload",
+      uploadURL: process.env.VUE_APP_BASE_API + "/rdbms/convert/upload",
       headers: {
         Authorization: "Bearer " + getToken(),
       },
@@ -208,27 +209,32 @@ export default {
       });
     },
 
+    // 左侧类型切换
     onLeftTypeChange() {
-      if (this.outputType === 2) {
+      if (this.inputType === 2 && this.outputType === 2) {
         this.outputType = 1;
       }
     },
 
+    // 转换DDL
     convertDDL: XEUtils.debounce(function () {
-      if (this.inputType === 2) {
-        this.inputType = 1;
-      }
-      if (!this.contentLeft) {
+      if (!this.contentLeft && (!this.tableInfoListLeft || this.tableInfoListLeft.length === 0)) {
         return;
       }
       this.converting = true;
       const params = {
         inputType: this.inputType,
-        inputDDL: this.contentLeft,
-        tableVOList: this.tableInfoListLeft,
+        // inputDDL: this.contentLeft,
+        // tableVOList: this.tableInfoListLeft,
         outputType: this.outputType,
         outputDatabase: this.outputDatabase
       };
+      if (this.inputType === 1) {
+        params.inputDDL = this.contentLeft;
+      }
+      if (this.inputType === 2) {
+        params.tableVOList = this.tableInfoListLeft;
+      }
       convertDDL(params).then(res => {
         if (res.data) {
           if (this.outputType === 1) {
@@ -252,12 +258,22 @@ export default {
       });
     }, 200),
 
+    // excel数据转换为DDL
     excelDataToDDL() {
       // console.log(this.$refs.sheetLeft.getData());
       this.tableInfoListLeft = workbookDataToTableInfo(this.$refs.sheetLeft.getData());
       this.convertDDL();
     },
 
+    // 右侧类型切换
+    onRightTypeChange() {
+      if (this.inputType === 2 && this.outputType === 2) {
+        this.inputType = 1;
+      }
+      this.convertDDL();
+    },
+
+    // 上传成功
     uploadSuccess(res, file) {
       if (res.data) {
         this.workbookDataLeft = {

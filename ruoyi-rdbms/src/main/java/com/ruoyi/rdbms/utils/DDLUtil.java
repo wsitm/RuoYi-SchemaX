@@ -5,6 +5,7 @@ import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.drinkjava2.jdialects.*;
 import com.github.drinkjava2.jdialects.annotation.jpa.GenerationType;
@@ -30,9 +31,6 @@ import net.sf.jsqlparser.statement.drop.Drop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.Types;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -98,6 +96,11 @@ public abstract class DDLUtil {
                         columnModel.setIdGenerationType(GenerationType.IDENTITY);
                     }
 
+                    // 前端转义的时候需要转换为数据库类型
+                    if (columnVO.getType() == null && StrUtil.isNotEmpty(columnVO.getTypeName())) {
+                        columnVO.setType(dialectTypeToJavaSqlType(columnVO.getTypeName()));
+                    }
+
                     // columnModel.setColumnType(colDef2DialectType(dialect, column.getTypeName()));
                     columnModel.setColumnType(javaSqlTypeToDialectType(dialect, columnVO.getType()));
                     if (ListUtil.of(1111, 2003).contains(columnVO.getType())) {
@@ -157,7 +160,11 @@ public abstract class DDLUtil {
                                     .filter(indexVO -> !CollUtil.isEqualList(pKeyList, Arrays.asList(indexVO.getColumnList())))
                                     .map(indexVO -> {
                                         IndexModel indexModel = new IndexModel();
-                                        indexModel.setName(parcelName(dialect, indexVO.getIndexName()));
+                                        String indexName = parcelName(dialect, indexVO.getIndexName());
+                                        if (CommonUtil.containsDigit(indexName)) {
+                                            indexName = "index_" + RandomUtil.randomString(RandomUtil.BASE_CHAR, 16);
+                                        }
+                                        indexModel.setName(indexName);
                                         indexModel.setUnique(!indexVO.isNonUnique());
                                         indexModel.setColumnList(indexVO.getColumnList());
                                         return indexModel;
