@@ -1,12 +1,14 @@
 package com.ruoyi.rdbms.metainfo;
 
+import com.ruoyi.rdbms.entity.vo.ConnectInfoVO;
+
 public interface IMetaInfoHandler {
 
     /**
      * 加载数据到缓存
      *
-     * @param connectId 连接ID
+     * @param connectInfoVO 连接信息对象
      */
-    void loadDataToCache(Long connectId);
+    void loadDataToCache(ConnectInfoVO connectInfoVO);
 
 }

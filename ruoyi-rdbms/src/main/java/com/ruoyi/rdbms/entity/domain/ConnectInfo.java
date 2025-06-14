@@ -7,7 +7,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 连接配置对象 dim_connect_info
- * 
+ *
  * @author wsitm
  * @date 2025-01-11
  */
@@ -38,60 +38,89 @@ public class ConnectInfo extends BaseEntity
     @Excel(name = "密码")
     private String password;
 
-    public void setConnectId(Long connectId) 
+    /**
+     * 通配符，用于过滤表
+     * <strong>注</strong>：通配符匹配，匹配包含，
+     * <strong>?</strong> 表示匹配任何单个，
+     * <strong>*</strong> 表示匹配任何多个，
+     * <strong>!</strong> 表示剔除，
+     * <strong>,</strong> 逗号分隔多个通配符
+     * <br/>
+     * <strong>例</strong>："sys_*,!tb_*"，表示以 sys_ 开头，和不以 tb_ 开头的表
+     */
+    @Excel(name = "通配符")
+    private String wildcard;
+
+
+    public void setConnectId(Long connectId)
     {
         this.connectId = connectId;
     }
 
-    public Long getConnectId() 
+    public Long getConnectId()
     {
         return connectId;
     }
-    public void setConnectName(String connectName) 
+
+    public void setConnectName(String connectName)
     {
         this.connectName = connectName;
     }
 
-    public String getConnectName() 
+    public String getConnectName()
     {
         return connectName;
     }
-    public void setJdbcId(Long jdbcId) 
+
+    public void setJdbcId(Long jdbcId)
     {
         this.jdbcId = jdbcId;
     }
 
-    public Long getJdbcId() 
+    public Long getJdbcId()
     {
         return jdbcId;
     }
-    public void setJdbcUrl(String jdbcUrl) 
+
+    public void setJdbcUrl(String jdbcUrl)
     {
         this.jdbcUrl = jdbcUrl;
     }
 
-    public String getJdbcUrl() 
+    public String getJdbcUrl()
     {
         return jdbcUrl;
     }
-    public void setUsername(String username) 
+
+    public void setUsername(String username)
     {
         this.username = username;
     }
 
-    public String getUsername() 
+    public String getUsername()
     {
         return username;
     }
-    public void setPassword(String password) 
+
+    public void setPassword(String password)
     {
         this.password = password;
     }
 
-    public String getPassword() 
+    public String getPassword()
     {
         return password;
     }
+
+
+    public String getWildcard() {
+        return wildcard;
+    }
+
+    public void setWildcard(String wildcard) {
+        this.wildcard = wildcard;
+    }
+
 
     @Override
     public String toString() {
@@ -102,6 +131,7 @@ public class ConnectInfo extends BaseEntity
             .append("jdbcUrl", getJdbcUrl())
             .append("username", getUsername())
             .append("password", getPassword())
+            .append("wildcard", getWildcard())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())

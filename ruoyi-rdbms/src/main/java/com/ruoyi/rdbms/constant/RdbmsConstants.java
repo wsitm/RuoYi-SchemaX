@@ -25,15 +25,15 @@ public class RdbmsConstants {
     public static final String CACHE_KEY = "rdbms:";
 
     public static final String CACHE_LOADING_KEY = "rdbms:loading:%s";
-    public static final String CACHE_HISTORY_KEY = "rdbms:history:%s";
     public static final String CACHE_METAINFO_KEY = "rdbms:metainfo:%s:%s";
+
+    public static final String CACHE_METAINFO_SUB_KEY_MAIN = "main";
+    public static final String CACHE_METAINFO_SUB_KEY_TEMP = "temp";
 
     /**
      * 正则表达式：只允许英文、数字和下划线
      */
     public static final Pattern RDBMS_PATTERN = Pattern.compile("^[a-zA-Z0-9_]+$");
-
-
 
 
 }

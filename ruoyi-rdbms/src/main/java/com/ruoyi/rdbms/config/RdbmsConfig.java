@@ -1,6 +1,7 @@
 package com.ruoyi.rdbms.config;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import com.ruoyi.rdbms.entity.domain.JdbcInfo;
 import com.ruoyi.rdbms.entity.vo.JdbcInfoVo;
 import com.ruoyi.rdbms.mapper.JdbcInfoMapper;
@@ -10,13 +11,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
-public class LoadJdbcConfig implements ApplicationListener<ApplicationStartedEvent> {
-    private static final Logger log = LoggerFactory.getLogger(LoadJdbcConfig.class);
+public class RdbmsConfig implements ApplicationListener<ApplicationStartedEvent> {
+    private static final Logger log = LoggerFactory.getLogger(RdbmsConfig.class);
 
 
     @Autowired
@@ -31,6 +34,12 @@ public class LoadJdbcConfig implements ApplicationListener<ApplicationStartedEve
                 RdbmsUtil.loadJdbcJar(jdbcInfo);
             }
         }
+    }
+
+
+    @Bean(name = "threadPoolExecutor")
+    public ThreadPoolExecutor threadPoolExecutor() {
+        return ThreadUtil.newExecutor();
     }
 
 }

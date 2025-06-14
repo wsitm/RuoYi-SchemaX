@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
@@ -86,11 +87,12 @@ public class OracleMetaInfoHandler extends AbsMetaInfoHandler {
     /**
      * 刷新数据
      *
-     * @param connectId 连接ID
-     * @param consumer  消费者
+     * @param connectId     连接ID
+     * @param checkNameFunc 校验名称函数
+     * @param consumer      消费者
      */
     @Override
-    public void flushData(Long connectId, Consumer<TableVO> consumer) {
+    public void flushData(Long connectId, Function<String, Boolean> checkNameFunc, Consumer<TableVO> consumer) {
         try (
                 RdbmsUtil.ShimDataSource dataSource = RdbmsUtil.getDataSource(connectId);
                 Connection connection = dataSource.getConnection()
@@ -101,6 +103,9 @@ public class OracleMetaInfoHandler extends AbsMetaInfoHandler {
             List<Entity> tableEntityList = SqlExecutor.query(connection, SqlBuilder.of(TABLE_SQL), EntityListHandler.create());
 
             for (List<Entity> entityList : ListUtil.partition(tableEntityList, 100)) {
+                if (Thread.currentThread().isInterrupted()) {
+                    break;
+                }
                 String tableNames = entityList.stream()
                         .map(e -> String.format("'%s'", e.getStr("TABLE_NAME")))
                         .collect(Collectors.joining(","));
@@ -116,14 +121,19 @@ public class OracleMetaInfoHandler extends AbsMetaInfoHandler {
                 Map<String, List<Entity>> indexEntityGroup = indexEntityList.stream().collect(Collectors.groupingBy(e -> e.getStr("TABLE_NAME")));
                 // 查询表信息
                 for (Entity entity : entityList) {
+                    String tableName = entity.getStr("TABLE_NAME");
+                    if (!checkNameFunc.apply(tableName)) {
+                        continue;
+                    }
+                    log.info("读取表 {} 的信息", tableName);
                     TableVO tableVO = new TableVO();
                     tableVO.setSchema(schema);
                     tableVO.setCatalog(catalog);
-                    tableVO.setTableName(entity.getStr("TABLE_NAME"));
+                    tableVO.setTableName(tableName);
                     tableVO.setComment(entity.getStr("COMMENTS"));
                     tableVO.setNumRows(entity.getInt("NUM_ROWS"));
                     tableVO.setColumnList(
-                            columnEntityGroup.get(entity.getStr("TABLE_NAME")).stream()
+                            columnEntityGroup.get(tableName).stream()
                                     .map(c -> {
                                         ColumnVO columnVO = new ColumnVO();
                                         columnVO.setTableName(c.getStr("TABLE_NAME"));
@@ -163,4 +173,5 @@ public class OracleMetaInfoHandler extends AbsMetaInfoHandler {
             log.error("获取表格信息异常", sqlException);
         }
     }
+
 }

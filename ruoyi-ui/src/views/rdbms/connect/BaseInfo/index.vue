@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="base-info-container">
     <el-form ref="queryForm" size="small" :inline="true" label-width="68px">
       <el-form-item label="关键字" prop="search">
         <el-input
@@ -19,7 +19,7 @@
     <el-table
         ref="table"
         :data="result"
-        height="600"
+        :height="height"
         stripe
         style="width: 100%">
       <el-table-column
@@ -77,6 +77,9 @@ export default {
         })
       }
       return this.tableInfoList;
+    },
+    height(){
+      return window.innerHeight - 190;
     }
   },
   created() {
@@ -85,3 +88,12 @@ export default {
   methods: {}
 };
 </script>
+
+<style scoped>
+.base-info-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+</style>

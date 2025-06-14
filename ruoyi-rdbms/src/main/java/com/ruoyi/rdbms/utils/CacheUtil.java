@@ -28,37 +28,14 @@ public abstract class CacheUtil {
     }
 
     /**
-     * 获取缓存 History key
-     *
-     * @param connectId 连接ID
-     * @return key
-     */
-    public static String getHistoryKey(Long connectId) {
-        return String.format(RdbmsConstants.CACHE_HISTORY_KEY, connectId);
-    }
-
-    /**
      * 获取缓存 Metainfo key
      *
      * @param connectId 连接ID
-     * @param nanoId    历史标记，nanoId
+     * @param subKey    子标记
      * @return key
      */
-    public static String getMetainfoKey(Long connectId, String nanoId) {
-        return String.format(RdbmsConstants.CACHE_METAINFO_KEY, connectId, nanoId);
-    }
-
-    /**
-     * 是否正在加载数据到缓存中
-     *
-     * @param connectId 连接ID
-     * @return 布尔
-     */
-    public static Boolean isLoading(Long connectId) {
-        RedisCache redisCache = SpringUtils.getBean(RedisCache.class);
-        String loadingKey = getLoadingKey(connectId);
-        Boolean loading = redisCache.getCacheObject(loadingKey);
-        return Boolean.TRUE.equals(loading);
+    public static String getMetainfoKey(Long connectId, String subKey) {
+        return String.format(RdbmsConstants.CACHE_METAINFO_KEY, connectId, subKey);
     }
 
     /**
@@ -68,25 +45,16 @@ public abstract class CacheUtil {
      * @return 类型
      */
     public static Integer cacheType(Long connectId) {
-        Boolean isLoading = isLoading(connectId);
+        RedisCache redisCache = SpringUtils.getBean(RedisCache.class);
+
+        String loadingKey = getLoadingKey(connectId);
+        Boolean isLoading = redisCache.getCacheObject(loadingKey);
         if (Boolean.TRUE.equals(isLoading)) {
             return 2;
         }
-        RedisCache redisCache = SpringUtils.getBean(RedisCache.class);
 
-        String historyKey = getHistoryKey(connectId);
-        List<String> keyList = redisCache.getCacheList(historyKey);
-        if (CollUtil.isEmpty(keyList)) {
-            return 3;
-        }
-        String nanoId = keyList.get(0);
-        if (Boolean.TRUE.equals(isLoading) && keyList.size() > 1) {
-            // 如果正在加载中，临时先使用旧数据
-            nanoId = keyList.get(1);
-        }
-
-        String realKey = getMetainfoKey(connectId, nanoId);
-        Long size = redisCache.getCacheListSize(realKey);
+        String mainKey = getMetainfoKey(connectId, RdbmsConstants.CACHE_METAINFO_SUB_KEY_MAIN);
+        Long size = redisCache.getCacheListSize(mainKey);
         if (size == null || size <= 0L) {
             return 3;
         }
@@ -102,22 +70,8 @@ public abstract class CacheUtil {
      */
     public static List<TableVO> getTableMetaList(Long connectId) {
         RedisCache redisCache = SpringUtils.getBean(RedisCache.class);
-        String loadingKey = getLoadingKey(connectId);
-        String historyKey = getHistoryKey(connectId);
-
-        Boolean isLoading = redisCache.getCacheObject(loadingKey);
-        List<String> keyList = redisCache.getCacheList(historyKey);
-        if (CollUtil.isEmpty(keyList)) {
-            return new ArrayList<>();
-        }
-        String nanoId = keyList.get(0);
-        if (Boolean.TRUE.equals(isLoading) && keyList.size() > 1) {
-            // 如果正在加载中，临时先使用旧数据
-            nanoId = keyList.get(1);
-        }
-
-        String realKey = getMetainfoKey(connectId, nanoId);
-        List<TableVO> cacheList = redisCache.getCacheList(realKey);
+        String mainKey = getMetainfoKey(connectId, RdbmsConstants.CACHE_METAINFO_SUB_KEY_MAIN);
+        List<TableVO> cacheList = redisCache.getCacheList(mainKey);
         if (CollUtil.isEmpty(cacheList)) {
             return new ArrayList<>();
         }

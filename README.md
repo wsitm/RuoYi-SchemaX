@@ -1,5 +1,5 @@
 <h1 align="center" style="margin: 30px 0 30px; font-weight: bold;">RuoYi-RDBMS v3.8.9</h1>
-<h4 align="center">基于RuoYi框架开发的RDBMS快捷工具</h4>
+<h4 align="center">基于RuoYi框架开发的RDBMS简易工具</h4>
 <p align="center">
 	<a href="https://gitee.com/wsitm/RuoYi-RDBMS">
       <img src="https://img.shields.io/badge/RDBMS-v3.8.9-brightgreen.svg">
@@ -9,7 +9,7 @@
     </a>
 </p>
 
-## RDBMS快捷工具简介
+## RDBMS简易工具简介
 
 * 通过上传驱动文件，并<strong>配置对应JDBC驱动包</strong>，然后配置数据库连接，可以直接<strong>导出表结构</strong>、在线<strong>
   查看表结构</strong>、<strong>跨数据库方言生成DDL语句</strong>。由于驱动包可以自定义上传，所以理论上支持所有关系型数据库。

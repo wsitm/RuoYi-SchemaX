@@ -25,6 +25,7 @@ CREATE TABLE `dim_connect_info`
     `jdbc_url`     varchar(2048) NOT NULL COMMENT 'JDBC URL',
     `username`     varchar(256)  NOT NULL COMMENT '用户',
     `password`     varchar(256)  NOT NULL COMMENT '密码',
+    `wildcard`     varchar(4096)  NOT NULL COMMENT '通配符',
     `create_by`    varchar(100) DEFAULT NULL COMMENT '创建用户',
     `create_time`  timestamp NULL DEFAULT NULL COMMENT '创建时间',
     `update_by`    varchar(100) DEFAULT NULL COMMENT '修改用户',

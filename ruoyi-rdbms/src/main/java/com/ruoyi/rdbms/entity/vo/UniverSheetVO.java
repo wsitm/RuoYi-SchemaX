@@ -1,5 +1,6 @@
 package com.ruoyi.rdbms.entity.vo;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -62,7 +63,9 @@ public class UniverSheetVO {
         this.mergeData = mergeData;
     }
 
-    public static class SheetCell {
+    public static class SheetCell implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private String v;
         private StyleData s;
 
@@ -268,7 +271,8 @@ public class UniverSheetVO {
         }
     }
 
-    public static class Range {
+    public static class Range implements Serializable{
+        private static final long serialVersionUID = 1L;
         /**
          * NORMAL = 0,
          * ROW = 1,

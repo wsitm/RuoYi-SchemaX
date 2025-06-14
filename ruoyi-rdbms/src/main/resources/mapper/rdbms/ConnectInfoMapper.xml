@@ -10,6 +10,7 @@
         <result property="jdbcUrl" column="jdbc_url"/>
         <result property="username" column="username"/>
         <result property="password" column="password"/>
+        <result property="wildcard" column="wildcard"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -23,6 +24,7 @@
                a.jdbc_url,
                a.username,
                a.password,
+               a.wildcard,
                a.create_by,
                a.create_time,
                a.update_by,
@@ -78,6 +80,9 @@
             <if test="password != null">
                 password,
             </if>
+            <if test="wildcard != null">
+                wildcard,
+            </if>
             <if test="createBy != null">
                 create_by,
             </if>
@@ -106,6 +111,9 @@
             </if>
             <if test="password != null">
                 #{password},
+            </if>
+            <if test="wildcard != null">
+                #{wildcard},
             </if>
             <if test="createBy != null">
                 #{createBy},
@@ -139,6 +147,9 @@
             </if>
             <if test="password != null">
                 password = #{password},
+            </if>
+            <if test="wildcard != null">
+                wildcard = #{wildcard},
             </if>
             <if test="createBy != null">
                 create_by = #{createBy},
