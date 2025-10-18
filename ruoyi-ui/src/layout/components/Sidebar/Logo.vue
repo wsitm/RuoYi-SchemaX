@@ -27,7 +27,7 @@ export default {
   },
   computed: {
     variables() {
-      return variables;
+      return variables
     },
     sideTheme() {
       return this.$store.state.settings.sideTheme
@@ -36,8 +36,7 @@ export default {
   data() {
     return {
       title: process.env.VUE_APP_TITLE,
-      // logo: logoImg
-      logo: null
+      logo: logoImg
     }
   }
 }
