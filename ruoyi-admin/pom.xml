@@ -64,7 +64,7 @@
         <!-- 数据库配置模块-->
         <dependency>
             <groupId>com.ruoyi</groupId>
-            <artifactId>ruoyi-rdbms</artifactId>
+            <artifactId>ruoyi-schemax</artifactId>
             <version>${ruoyi.version}</version>
         </dependency>
 

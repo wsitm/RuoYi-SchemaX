@@ -2,16 +2,23 @@
   <div class="app-container home">
     <el-row :gutter="20">
       <el-col :sm="24" :lg="12" style="padding-left: 20px">
-        <h2>RuoYi-RDBMS简易工具</h2>
+        <h2>RuoYi-SchemaX</h2>
         <!--        <h3>若依后台管理框架</h3>-->
         <p>
-          <strong>基于ruoyi框架开发的RDBMS简易工具</strong>
+          <strong>基于RuoYi框架开发的数据库结构转换工具</strong>
           <!--          <br/>-->
           <!--          <br/>-->
-          <!--          <strong>ruoyi-rdbms工具能做什么</strong>-->
+          <!--          <strong>ruoyi-schemax工具能做什么</strong>-->
           <br/>
           <br/>
-          <strong>一、驱动管理</strong>
+          <strong>一、DDL转换</strong>
+          <br/>
+          工具的另一大亮点在于DDL转换功能。我们深知DDL语句在不同数据库之间的差异性，因此特别设计了这一功能来兼容输入各种类型的DDL语句。
+          <br/>
+          用户只需输入原始的DDL语句，并指定目标数据库的方言，工具即可智能地将其转换为相应的DDL语句。
+          <br/>
+          <br/>
+          <strong>二、驱动管理</strong>
           <br/>
           工具提供了的驱动管理功能，让用户能够上传并配置各类数据库驱动包。无论是常见的MySQL、Oracle、PostgreSQL、SQL
           Server，还是更多小众的数据库类型，只需上传相应的驱动包，即可迅速完成配置。
@@ -19,7 +26,7 @@
           这一功能不仅简化了驱动安装与更新的繁琐过程，还确保了工具能够与各类数据库无缝对接，为用户提供更为广泛的选择和便利。
           <br/>
           <br/>
-          <strong>二、连接管理</strong>
+          <strong>三、连接管理</strong>
           <br/>
           在连接管理方面，工具支持用户配置JDBC URL，通过简单的设置即可连接到目标数据库。
           <br/>
@@ -33,12 +40,6 @@
           <br/>
           这一功能不仅提高了DDL语句的可读性和可移植性，还为用户在不同数据库之间的迁移和转换提供了极大的便利。
           <br/>
-          <br/>
-          <strong>三、DDL转换</strong>
-          <br/>
-          工具的另一大亮点在于DDL转换功能。我们深知DDL语句在不同数据库之间的差异性，因此特别设计了这一功能来兼容输入各种类型的DDL语句。
-          <br/>
-          用户只需输入原始的DDL语句，并指定目标数据库的方言，工具即可智能地将其转换为相应的DDL语句。
         </p>
         <p>
           <b>当前版本:</b> <span>v{{ version }}</span>，沿用 RuoYi 的版本，不定期同步
@@ -52,14 +53,14 @@
               size="mini"
               icon="el-icon-cloudy"
               plain
-              @click="goTarget('https://gitee.com/wsitm/RuoYi-RDBMS')"
+              @click="goTarget('https://gitee.com/wsitm/RuoYi-RDBMShttps://gitee.com/wsitm/RuoYi-SchemaX.git')"
           >访问码云
           </el-button>
           <!--          <el-button-->
           <!--            size="mini"-->
           <!--            icon="el-icon-s-home"-->
           <!--            plain-->
-          <!--            @click="goTarget('https://gitee.com/wsitm/RuoYi-RDBMS')"-->
+          <!--            @click="goTarget('https://gitee.com/wsitm/RuoYi-SchemaX.git')"-->
           <!--            >访问主页
           </el-button>-->
         </p>
@@ -117,9 +118,9 @@
             <p>
               <i class="el-icon-s-promotion"></i> 官网：
               <el-link
-                  href="https://gitee.com/wsitm/RuoYi-RDBMS"
+                  href="https://gitee.com/wsitm/RuoYi-SchemaX.git"
                   target="_blank">
-                https://gitee.com/wsitm/RuoYi-RDBMS
+                https://gitee.com/wsitm/RuoYi-SchemaX.git
               </el-link>
             </p>
             <p>
@@ -144,6 +145,13 @@
             <span>更新日志</span>
           </div>
           <el-collapse accordion>
+            <el-collapse-item title="v3.9.0 - 2025-11-08">
+              <ol>
+                <li>同步RuoYi 3.9.0最新代码</li>
+                <li>修改项目名称</li>
+                <li>其他细节优化</li>
+              </ol>
+            </el-collapse-item>
             <el-collapse-item title="v3.8.9 - 2024-12-30">
               <ol>
                 <li>添加驱动管理模块</li>
@@ -181,7 +189,7 @@ export default {
   data() {
     return {
       // 版本号
-      version: "3.8.9"
+      version: "3.9.0"
     };
   },
   methods: {

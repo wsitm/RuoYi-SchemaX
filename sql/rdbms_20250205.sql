@@ -57,7 +57,7 @@ VALUES(6, 'hive2-jdbc', 'hive-jdbc-uber-2.6.5.0-292.jar', 'org.apache.hive.jdbc.
 
 INSERT INTO sys_menu
 (menu_id, menu_name, parent_id, order_num, `path`, component, query, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES(2000, '驱动管理', 2006, 1, 'jdbc', 'rdbms/jdbc/index', NULL, '', 1, 0, 'C', '0', '0', 'rdbms:jdbc:list', 'dict', 'admin', '2025-01-11 12:22:36', 'admin', '2025-01-11 13:31:49', '驱动管理菜单');
+VALUES(2000, '驱动管理', 2006, 2, 'jdbc', 'rdbms/jdbc/index', NULL, '', 1, 0, 'C', '0', '0', 'rdbms:jdbc:list', 'dict', 'admin', '2025-01-11 12:22:36', 'admin', '2025-01-11 13:31:49', '驱动管理菜单');
 INSERT INTO sys_menu
 (menu_id, menu_name, parent_id, order_num, `path`, component, query, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES(2002, '驱动管理新增', 2000, 2, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'rdbms:jdbc:add', '#', 'admin', '2025-01-11 12:22:37', '', NULL, '');
@@ -75,7 +75,7 @@ INSERT INTO sys_menu
 VALUES(2006, '库表工具', 0, 0, 'rdbms', NULL, NULL, '', 1, 0, 'M', '0', '0', '', 'table', 'admin', '2025-01-11 13:31:15', 'admin', '2025-02-08 22:58:56', '');
 INSERT INTO sys_menu
 (menu_id, menu_name, parent_id, order_num, `path`, component, query, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES(2007, '连接配置', 2006, 1, 'connect', 'rdbms/connect/index', NULL, '', 1, 0, 'C', '0', '0', 'rdbms:connect:list', 'swagger', 'admin', '2025-01-11 20:31:34', 'admin', '2025-01-28 22:13:43', '连接配置菜单');
+VALUES(2007, '连接配置', 2006, 3, 'connect', 'rdbms/connect/index', NULL, '', 1, 0, 'C', '0', '0', 'rdbms:connect:list', 'swagger', 'admin', '2025-01-11 20:31:34', 'admin', '2025-01-28 22:13:43', '连接配置菜单');
 INSERT INTO sys_menu
 (menu_id, menu_name, parent_id, order_num, `path`, component, query, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES(2009, '连接配置新增', 2007, 2, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'rdbms:connect:add', '#', 'admin', '2025-01-11 20:31:34', '', NULL, '');
@@ -90,7 +90,7 @@ INSERT INTO sys_menu
 VALUES(2012, '连接配置导出', 2007, 5, '#', '', NULL, '', 1, 0, 'F', '0', '0', 'rdbms:connect:export', '#', 'admin', '2025-01-11 20:31:34', '', NULL, '');
 INSERT INTO sys_menu
 (menu_id, menu_name, parent_id, order_num, `path`, component, query, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES(2013, 'DDL转换', 2006, 3, 'convert', 'rdbms/convert/index', NULL, '', 1, 0, 'C', '0', '0', 'rdbms:convert:list', 'row', 'admin', '2025-01-28 14:16:29', 'admin', '2025-01-28 14:17:03', '');
+VALUES(2013, 'DDL转换', 2006, 1, 'convert', 'rdbms/convert/index', NULL, '', 1, 0, 'C', '0', '0', 'rdbms:convert:list', 'row', 'admin', '2025-01-28 14:16:29', 'admin', '2025-01-28 14:17:03', '');
 INSERT INTO sys_menu
 (menu_id, menu_name, parent_id, order_num, `path`, component, query, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES(2014, '驱动管理装卸', 2000, 6, '', NULL, NULL, '', 1, 0, 'F', '0', '0', 'rdbms:jdbc:load', '#', 'admin', '2025-02-09 14:32:04', '', NULL, '');

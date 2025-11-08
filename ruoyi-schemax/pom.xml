@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>ruoyi</artifactId>
+        <groupId>com.ruoyi</groupId>
+        <version>3.9.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>ruoyi-schemax</artifactId>
+
+    <description>
+        数据库配置模块
+    </description>
+
+    <properties>
+        <hutool.version>5.8.41</hutool.version>
+    </properties>
+
+    <dependencies>
+
+        <!-- 通用工具-->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-common</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-core -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-db</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-core -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-poi</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.github.drinkjava2/jdialects -->
+        <dependency>
+            <groupId>com.github.drinkjava2</groupId>
+            <artifactId>jdialects</artifactId>
+            <version>5.0.13.jre8</version>
+        </dependency>
+
+        <!--    jsqlparser 依赖在pageHepler已经存在，暂不需要额外引用    -->
+        <!-- https://mvnrepository.com/artifact/com.github.jsqlparser/jsqlparser -->
+        <!--        <dependency>-->
+        <!--            <groupId>com.github.jsqlparser</groupId>-->
+        <!--            <artifactId>jsqlparser</artifactId>-->
+        <!--            <version>4.9</version>-->
+        <!--            &lt;!&ndash; 如果使用的是jdk11以上，可以切换到最新版本。5.0以后只支持jdk11  &ndash;&gt;-->
+        <!--        </dependency>-->
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>

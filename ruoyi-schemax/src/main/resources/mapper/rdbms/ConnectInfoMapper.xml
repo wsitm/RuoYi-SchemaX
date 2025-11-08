@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.schemax.mapper.ConnectInfoMapper">
+    <resultMap type="ConnectInfo" id="ConnectInfoResult">
+        <result property="connectId" column="connect_id"/>
+        <result property="connectName" column="connect_name"/>
+        <result property="jdbcId" column="jdbc_id"/>
+        <result property="jdbcUrl" column="jdbc_url"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="wildcard" column="wildcard"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectConnectInfoVo">
+        select a.connect_id,
+               a.connect_name,
+               a.jdbc_id,
+               a.jdbc_url,
+               a.username,
+               a.password,
+               a.wildcard,
+               a.create_by,
+               a.create_time,
+               a.update_by,
+               a.update_time,
+               b.jdbc_name,
+               b.driver_class,
+               b.jdbc_file
+        from dim_connect_info a
+                 left join dim_jdbc_info b on a.jdbc_id = b.jdbc_id
+    </sql>
+
+    <select id="selectConnectInfoList" parameterType="ConnectInfo" resultType="com.ruoyi.schemax.entity.vo.ConnectInfoVO">
+        <include refid="selectConnectInfoVo"/>
+        <where>
+            <if test="connectName != null  and connectName != ''">
+                and a.connect_name like concat('%', #{connectName}, '%')
+            </if>
+            <if test="jdbcId != null">
+                and a.jdbc_id = #{jdbcId}
+            </if>
+            <if test="jdbcUrl != null  and jdbcUrl != ''">
+                and a.jdbc_url = #{jdbcUrl}
+            </if>
+            <if test="username != null  and username != ''">
+                and a.username like concat('%', #{username}, '%')
+            </if>
+            <if test="password != null  and password != ''">
+                and a.password = #{password}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectConnectInfoByConnectId" parameterType="Long" resultType="com.ruoyi.schemax.entity.vo.ConnectInfoVO">
+        <include refid="selectConnectInfoVo"/>
+        where a.connect_id = #{connectId}
+    </select>
+
+    <insert id="insertConnectInfo" parameterType="ConnectInfo" useGeneratedKeys="true" keyProperty="connectId">
+        insert into dim_connect_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="connectName != null">
+                connect_name,
+            </if>
+            <if test="jdbcId != null">
+                jdbc_id,
+            </if>
+            <if test="jdbcUrl != null">
+                jdbc_url,
+            </if>
+            <if test="username != null">
+                username,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="wildcard != null">
+                wildcard,
+            </if>
+            <if test="createBy != null">
+                create_by,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateBy != null">
+                update_by,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="connectName != null">
+                #{connectName},
+            </if>
+            <if test="jdbcId != null">
+                #{jdbcId},
+            </if>
+            <if test="jdbcUrl != null">
+                #{jdbcUrl},
+            </if>
+            <if test="username != null">
+                #{username},
+            </if>
+            <if test="password != null">
+                #{password},
+            </if>
+            <if test="wildcard != null">
+                #{wildcard},
+            </if>
+            <if test="createBy != null">
+                #{createBy},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="updateBy != null">
+                #{updateBy},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateConnectInfo" parameterType="ConnectInfo">
+        update dim_connect_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="connectName != null">
+                connect_name = #{connectName},
+            </if>
+            <if test="jdbcId != null">
+                jdbc_id = #{jdbcId},
+            </if>
+            <if test="jdbcUrl != null">
+                jdbc_url = #{jdbcUrl},
+            </if>
+            <if test="username != null">
+                username = #{username},
+            </if>
+            <if test="password != null">
+                password = #{password},
+            </if>
+            <if test="wildcard != null">
+                wildcard = #{wildcard},
+            </if>
+            <if test="createBy != null">
+                create_by = #{createBy},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateBy != null">
+                update_by = #{updateBy},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </trim>
+        where connect_id = #{connectId}
+    </update>
+
+    <delete id="deleteConnectInfoByConnectId" parameterType="Long">
+        delete
+        from dim_connect_info
+        where connect_id = #{connectId}
+    </delete>
+
+    <delete id="deleteConnectInfoByConnectIds" parameterType="String">
+        delete
+        from dim_connect_info where connect_id in
+        <foreach item="connectId" collection="array" open="(" separator="," close=")">
+            #{connectId}
+        </foreach>
+    </delete>
+</mapper>
