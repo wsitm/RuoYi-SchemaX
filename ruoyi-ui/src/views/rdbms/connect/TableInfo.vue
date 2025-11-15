@@ -24,11 +24,15 @@ import {tableInfoToWorkbookData} from "@/views/rdbms/connect/data";
 export default {
   name: "TableInfo",
   components: {BaseInfo, UniverSheet, DDL},
+  props: {
+    connectId: [String, Number],
+    driverClass: String
+  },
   data() {
     return {
       loading: false,
-      connectId: null,
-      driverClass: null,
+      // connectId: null,
+      // driverClass: null,
       tableInfoList: []
     };
   },
@@ -38,15 +42,15 @@ export default {
     }
   },
   created() {
-    let connectId = this.$route.params?.connectId;
-    if (!connectId) {
-      this.$modal.msgError("连接ID不能为空！");
-      return;
-    }
-    this.connectId = connectId;
-    this.driverClass = this.$route.query?.driverClass;
+    // let connectId = this.$route.params?.connectId;
+    // if (!connectId) {
+    //   this.$modal.msgError("连接ID不能为空！");
+    //   return;
+    // }
+    // this.connectId = connectId;
+    // this.driverClass = this.$route.query?.driverClass;
     // console.log(connectId, this.driver)
-    this.getTableInfo(connectId);
+    // this.getTableInfo(connectId);
   },
   methods: {
     getTableInfo(connectId) {
@@ -63,7 +67,7 @@ export default {
 
 <style scoped lang="scss">
 .app-container {
-  height: calc(100vh - 84px);
+  height: calc(100vh - 56px);
 
   .el-tabs {
     height: 100%;

@@ -65,7 +65,9 @@
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="jdbcList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading"
+              :data="jdbcList"
+              @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="驱动ID" align="center" prop="jdbcId" width="65"/>
       <el-table-column label="驱动名称" align="center" prop="jdbcName" show-overflow-tooltip/>

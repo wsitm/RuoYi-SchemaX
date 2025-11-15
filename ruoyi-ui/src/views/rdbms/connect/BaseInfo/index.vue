@@ -79,7 +79,7 @@ export default {
       return this.tableInfoList;
     },
     height(){
-      return window.innerHeight - 190;
+      return window.innerHeight - 150;
     }
   },
   created() {

@@ -83,7 +83,10 @@
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="connectList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading"
+              :data="connectList"
+              class="table"
+              @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="连接ID" align="center" prop="connectId" width="65"/>
       <el-table-column label="连接名称" align="center" prop="connectName" show-overflow-tooltip/>
@@ -158,6 +161,18 @@
         :limit.sync="queryParams.pageSize"
         @pagination="getList"
     />
+
+    <!--  表结构信息呈现  -->
+    <el-dialog :title="tableInfo.title"
+               :visible.sync="tableInfo.open"
+               :fullscreen="true"
+               append-to-body
+               class="table-info">
+      <table-info ref="tableInfo"
+                  :connect-id="tableInfo.connectId"
+                  :driver-class="tableInfo.driverClass"
+      />
+    </el-dialog>
 
     <!-- 添加或修改连接配置对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
@@ -241,9 +256,11 @@ import {
   updateConnect
 } from "@/api/rdbms/connect";
 import {listJdbc} from "@/api/rdbms/jdbc";
+import TableInfo from "@/views/rdbms/connect/TableInfo.vue";
 
 export default {
   name: "Connect",
+  components: {TableInfo},
   dicts: ['sys_common_status'],
   data() {
     return {
@@ -299,8 +316,18 @@ export default {
       // 驱动列表
       jdbcList: [],
 
+      // 倒计时刷新列表
       timer: null,
 
+      // 表结构信息
+      tableInfo: {
+        open: false,
+        title: "表结构信息",
+        connectId: null,
+        driverClass: null
+      },
+
+      // 导出表结构信息
       exportInfo: {
         row: {},
         title: "",
@@ -465,13 +492,20 @@ export default {
 
     /** 跳转页面 **/
     toPage(row) {
-      this.$router.push({
-        path: "/rdbms/table-info/index/" + row.connectId,
-        meta: {title: row.name},
-        query: {
-          driverClass: row.driverClass
-        }
-      });
+      // this.$router.push({
+      //   path: "/rdbms/table-info/index/" + row.connectId,
+      //   meta: {title: row.name},
+      //   query: {
+      //     driverClass: row.driverClass
+      //   }
+      // });
+      this.tableInfo.open = true;
+      this.tableInfo.title = row.connectName + "(" + row.connectId + ")";
+      this.tableInfo.connectId = row.connectId;
+      this.tableInfo.driverClass = row.driverClass;
+      this.$nextTick(() => {
+        this.$refs.tableInfo?.getTableInfo(row.connectId);
+      })
     },
     /** 导出表结构信息 */
     handleExportInfo() {
@@ -490,3 +524,24 @@ export default {
   }
 };
 </script>
+
+
+<style scoped lang="scss">
+.table {
+  // 表格高度不一致，将高度撑开
+  ::v-deep .el-table__fixed-right {
+    height: 100% !important;
+  }
+}
+
+.table-info {
+  ::v-deep .el-dialog__header {
+    border-bottom: 1px solid #dcdee4;
+  }
+
+  ::v-deep .el-dialog__body {
+    margin: 0 auto;
+    padding: 0;
+  }
+}
+</style>

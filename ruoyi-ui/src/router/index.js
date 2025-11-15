@@ -90,24 +90,6 @@ export const constantRoutes = [
   }
 ]
 
-// RDBMS 模块的路由
-const rdbmsRoutes = [
-  {
-    path: '/rdbms/table-info',
-    component: Layout,
-    hidden: true,
-    permissions: ['rdbms:table-info:list'],
-    children: [
-      {
-        path: 'index/:connectId(\\d+)',
-        component: () => import('@/views/rdbms/connect/TableInfo'),
-        name: 'TableInfo',
-        meta: {title: '连接信息', activeMenu: '/rdbms/connect'}
-      }
-    ]
-  }
-];
-
 // 动态路由，基于用户权限动态去加载
 export const dynamicRoutes = [
   {
@@ -180,7 +162,7 @@ export const dynamicRoutes = [
       }
     ]
   }
-].concat(rdbmsRoutes);
+];
 
 // 防止连续点击多次路由报错
 let routerPush = Router.prototype.push
